@@ -85,6 +85,24 @@ public class HeroControllerTests
 
 Run tests: `dotnet test` from root or `tests/` directory.
 
+## ⚠️ Pre-Commit Checklist
+
+**ALWAYS before commit or push:**
+1. 🏗️ **Build**: `dotnet build` - Verify compilation succeeds
+2. 🧪 **Test**: `dotnet test` - Run ALL tests and verify they pass
+3. ✅ **New tests**: Add unit tests for any new code (happy + sad paths)
+4. 🔍 **Review**: Check for warnings or errors in build output
+
+```bash
+# Quick validation before commit
+dotnet build && dotnet test
+```
+
+**Never commit code that:**
+- ❌ Doesn't compile
+- ❌ Has failing tests
+- ❌ Lacks unit tests for new functionality
+
 ## 📝 Commit Messages
 
 Use conventional commits with emojis:
