@@ -58,11 +58,6 @@ locals {
     Environment = var.environment
     ManagedBy   = "Terraform"
   }
-  
-  # Connection strings
-  sqlserver_connection_string = var.database_provider == "SqlServer" ? "Server=tcp:${azurerm_mssql_server.sqlserver[0].name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.sqldatabase[0].name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" : ""
-  
-  postgresql_connection_string = var.database_provider == "PostgreSQL" ? "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;" : ""
 }
 
 
@@ -178,16 +173,22 @@ resource "azurerm_windows_web_app" "web" {
   }
 
   # Connection Strings
-  connection_string {
-    name  = "DefaultConnection"
-    value = local.sqlserver_connection_string
-    type  = "SQLAzure"
+  dynamic "connection_string" {
+    for_each = var.database_provider == "SqlServer" ? [1] : []
+    content {
+      name  = "DefaultConnection"
+      value = "Server=tcp:${azurerm_mssql_server.sqlserver[0].name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.sqldatabase[0].name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      type  = "SQLAzure"
+    }
   }
 
-  connection_string {
-    name  = "PostgreSQL"
-    value = local.postgresql_connection_string
-    type  = "Custom"
+  dynamic "connection_string" {
+    for_each = var.database_provider == "PostgreSQL" ? [1] : []
+    content {
+      name  = "PostgreSQL"
+      value = "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;"
+      type  = "Custom"
+    }
   }
 }
 
@@ -202,16 +203,22 @@ resource "azurerm_windows_web_app_slot" "web" {
   }
 
   # Connection Strings
-  connection_string {
-    name  = "DefaultConnection"
-    value = local.sqlserver_connection_string
-    type  = "SQLAzure"
+  dynamic "connection_string" {
+    for_each = var.database_provider == "SqlServer" ? [1] : []
+    content {
+      name  = "DefaultConnection"
+      value = "Server=tcp:${azurerm_mssql_server.sqlserver[0].name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.sqldatabase[0].name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      type  = "SQLAzure"
+    }
   }
 
-  connection_string {
-    name  = "PostgreSQL"
-    value = local.postgresql_connection_string
-    type  = "Custom"
+  dynamic "connection_string" {
+    for_each = var.database_provider == "PostgreSQL" ? [1] : []
+    content {
+      name  = "PostgreSQL"
+      value = "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;"
+      type  = "Custom"
+    }
   }
 
   site_config {
