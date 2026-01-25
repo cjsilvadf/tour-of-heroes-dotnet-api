@@ -41,6 +41,12 @@ jobs:
       - name: 📊 Generate coverage report
         uses: danielpalme/ReportGenerator-GitHub-Action@5.5.1
         with:
+          reports: 'tests/TestResults/**/coverage.cobertura.xml' 
+          targetdir: 'coveragereport' 
+          reporttypes: 'MarkdownSummaryGithub;Badges'
+      
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v5
           reports: "tests/TestResults/**/coverage.cobertura.xml"
           targetdir: "coveragereport"
           reporttypes: "MarkdownSummaryGithub;Badges"
