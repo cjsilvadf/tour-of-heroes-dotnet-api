@@ -1,62 +1,295 @@
-# Tour of heroes API in .NET
+# 🦸 Tour of Heroes API
+
+![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat&logo=dotnet)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat)
+![SQL Server](https://img.shields.io/badge/SQL%20Server-supported-CC2927?style=flat&logo=microsoftsqlserver)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-supported-4169E1?style=flat&logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat&logo=docker)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=flat&logo=terraform)
 
 ![Tour of Heroes](docs/images/heroes%20by%20microsoft%20designer.jpeg)
 
-This repository is an API in .NET for the AngularJS [Tour of Heroes tutorial](https://angular.io/tutorial), which when finished generates the API in memory. This one is supported by a SQL Server database that you can generate using Docker:
+API REST en **.NET 9** para el tutorial [Tour of Heroes](https://angular.io/tutorial) de Angular, con soporte para **SQL Server** y **PostgreSQL**, observabilidad completa con **OpenTelemetry**, y despliegue en **Azure** con Terraform.
+
+---
+
+## ✨ Características
+
+| Característica | Descripción |
+|----------------|-------------|
+| 🦸 **CRUD de Héroes** | API REST completa para gestionar héroes |
+| 🗄️ **Multi-Base de Datos** | Soporte para SQL Server y PostgreSQL |
+| 🛡️ **Rate Limiting** | Protección contra abuso de la API |
+| 📊 **OpenTelemetry** | Trazas, métricas y logs distribuidos |
+| 📈 **Prometheus** | Métricas exportadas en `/metrics` |
+| 🔍 **Jaeger** | Trazas distribuidas |
+| 📉 **Grafana** | Dashboards de monitorización |
+| 🐳 **Docker** | Contenedores listos para producción |
+| ☁️ **Terraform** | Infraestructura como código para Azure |
+| 🧪 **Tests** | Tests unitarios con xUnit y Moq |
+
+---
+
+## 🚀 Inicio Rápido
+
+### Requisitos
+
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Docker](https://www.docker.com/get-started) (opcional, para base de datos)
+
+### Opción 1: Dev Container (Recomendado) 🐳
+
+Este proyecto incluye un **Dev Container** con todo lo necesario:
 
 ```bash
-docker run \
--e 'ACCEPT_EULA=Y' \
--e 'SA_PASSWORD=Password1!' \
--e 'MSSQL_PID=Express' \
---name sqlserver \
--p 1433:1433 -d mcr.microsoft.com/mssql/server:latest
+# Abrir en VS Code con la extensión Dev Containers
+code .
+# Ctrl+Shift+P -> "Dev Containers: Reopen in Container"
 ```
 
-Or if you have a Mac with an ARM chip, you can use the following command:
+### Opción 2: Ejecución Local
 
 ```bash
-docker run \
---name azuresqledge \
---network sqlserver-vnet \
---cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' \
--e 'MSSQL_SA_PASSWORD=Password1!' \
--p 1433:1433 \
--d mcr.microsoft.com/azure-sql-edge
-```
+# Clonar el repositorio
+git clone https://github.com/0GiS0/tour-of-heroes-dotnet-api.git
+cd tour-of-heroes-dotnet-api
 
-You have the steps in the file [create-local-database.sh](create-local-database.sh)
+# Restaurar dependencias
+dotnet restore
 
-## Configuration
-
-If there is no other file, the database configuration is taken from the so-called [appsettings.json](appsettings.json) but you must be careful not to upload sensitive information to this, so it is good practice to create a local one called **appsettings.Development.json** that the .NET project will recognize, use it instead and will not be uploaded to GitHub. 
-
-```json
-{
-    "ConnectionStrings": {
-        "DefaultConnection": "Server=localhost,1433;Initial Catalog=heroes;Persist Security Info=False;User ID=sa;Password=Password1!;"
-    },
-    "Logging": {
-        "LogLevel": {
-            "Default": "Information",
-            "Microsoft": "Warning",
-            "Microsoft.Hosting.Lifetime": "Information"
-        }
-    },
-    "AllowedHosts": "*"
-}
-```
-
-## How to run the project
-
-If you are using Visual Studio Code, you can run the project by pressing `F5`. If you are using any other method you can launch it by running the following command:
-
-```bash
+# Ejecutar la API
+cd src
 dotnet run
 ```
 
-The project will be available at [http://localhost:5000](http://localhost:5000) and the Swagger documentation at [http://localhost:5000/swagger](http://localhost:5000/swagger)
+La API estará disponible en:
+- 🏠 **API Info**: [http://localhost:5020](http://localhost:5020)
+- 📖 **Swagger**: [http://localhost:5020/swagger](http://localhost:5020/swagger)
+- 📈 **Métricas**: [http://localhost:5020/metrics](http://localhost:5020/metrics)
 
-## How to add heroes
+---
 
-The first time you run the project, the database will be created but no heroes will be added. You can add them using the file called [client.http](client.http) that is in the root of the project. You can use the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension for Visual Studio Code to run the requests.
+## 🗄️ Configuración de Base de Datos
+
+La API soporta **SQL Server** y **PostgreSQL**. Configura el proveedor con la variable de entorno `DATABASE_PROVIDER`.
+
+### SQL Server (Por defecto)
+
+```bash
+# Iniciar SQL Server con Docker
+docker run \
+  -e 'ACCEPT_EULA=Y' \
+  -e 'SA_PASSWORD=YourStrong@Password1' \
+  -e 'MSSQL_PID=Express' \
+  --name sqlserver \
+  -p 1433:1433 \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+```
+
+**Para Mac con chip ARM:**
+```bash
+docker run \
+  --name azuresqledge \
+  --cap-add SYS_PTRACE \
+  -e 'ACCEPT_EULA=1' \
+  -e 'MSSQL_SA_PASSWORD=YourStrong@Password1' \
+  -p 1433:1433 \
+  -d mcr.microsoft.com/azure-sql-edge
+```
+
+### PostgreSQL
+
+```bash
+# Iniciar PostgreSQL con Docker
+docker run \
+  --name postgres \
+  -e POSTGRES_DB=heroes \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=YourStrong@Password1 \
+  -p 5432:5432 \
+  -d postgres:16-alpine
+```
+
+### Variables de Entorno
+
+| Variable | Descripción | Valores | Default |
+|----------|-------------|---------|---------|
+| `DATABASE_PROVIDER` | Proveedor de BD | `SqlServer`, `PostgreSQL` | `SqlServer` |
+| `ConnectionStrings__DefaultConnection` | Connection string SQL Server | string | - |
+| `ConnectionStrings__PostgreSQL` | Connection string PostgreSQL | string | - |
+
+**Ejemplo de uso:**
+```bash
+# Usar PostgreSQL
+export DATABASE_PROVIDER=PostgreSQL
+export ConnectionStrings__PostgreSQL="Host=localhost;Database=heroes;Username=postgres;Password=YourStrong@Password1"
+dotnet run
+```
+
+---
+
+## 📡 API Endpoints
+
+| Método | Ruta | Descripción | Rate Limit |
+|--------|------|-------------|------------|
+| `GET` | `/` | Información de la API | ✅ |
+| `GET` | `/api/health` | Health check | ❌ |
+| `GET` | `/api/heroes` | Listar todos los héroes | ✅ |
+| `GET` | `/api/heroes/{id}` | Obtener héroe por ID | ✅ |
+| `POST` | `/api/heroes` | Crear nuevo héroe | ✅ |
+| `PUT` | `/api/heroes/{id}` | Actualizar héroe | ✅ |
+| `DELETE` | `/api/heroes/{id}` | Eliminar héroe | ✅ |
+| `GET` | `/metrics` | Métricas Prometheus | ❌ |
+| `GET` | `/swagger` | Documentación Swagger | ❌ |
+
+### Ejemplos con cURL
+
+```bash
+# Listar héroes
+curl http://localhost:5020/api/heroes
+
+# Crear héroe
+curl -X POST http://localhost:5020/api/heroes \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Superman", "alterEgo": "Clark Kent"}'
+
+# Obtener héroe
+curl http://localhost:5020/api/heroes/1
+```
+
+También puedes usar el archivo [client.http](src/client.http) con la extensión [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) de VS Code.
+
+---
+
+## 📊 Observabilidad
+
+El proyecto incluye observabilidad completa con **OpenTelemetry**:
+
+| Componente | Puerto | URL |
+|------------|--------|-----|
+| 📈 Prometheus | 9090 | [http://localhost:9090](http://localhost:9090) |
+| 🔍 Jaeger | 16686 | [http://localhost:16686](http://localhost:16686) |
+| 📉 Grafana | 3000 | [http://localhost:3000](http://localhost:3000) |
+
+### Métricas disponibles
+
+- `http_server_request_duration_seconds` - Duración de peticiones HTTP
+- `http_server_active_requests` - Peticiones activas
+- `db_client_operation_duration` - Duración de operaciones de BD
+- `process_cpu_usage` - Uso de CPU
+- `process_memory_usage` - Uso de memoria
+
+---
+
+## 🐳 Docker
+
+### Build de la imagen
+
+```bash
+docker build -t tour-of-heroes-api -f build/docker/Dockerfile .
+```
+
+### Ejecutar con SQL Server
+
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -e "ConnectionStrings__DefaultConnection=Server=host.docker.internal,1433;Database=heroes;User Id=sa;Password=YourPassword;TrustServerCertificate=True" \
+  tour-of-heroes-api
+```
+
+### Ejecutar con PostgreSQL
+
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -e "DATABASE_PROVIDER=PostgreSQL" \
+  -e "ConnectionStrings__PostgreSQL=Host=host.docker.internal;Database=heroes;Username=postgres;Password=YourPassword" \
+  tour-of-heroes-api
+```
+
+---
+
+## 🏗️ Estructura del Proyecto
+
+```
+tour-of-heroes-dotnet-api/
+├── 📁 src/                      # Código fuente de la API
+│   ├── 📁 Controllers/          # Controladores REST
+│   ├── 📁 Models/               # Modelos y DbContext
+│   ├── 📁 Repositories/         # Patrón Repository
+│   ├── 📁 Interfaces/           # Interfaces
+│   ├── 📄 Program.cs            # Punto de entrada
+│   └── 📄 appsettings.json      # Configuración
+├── 📁 tests/                    # Tests unitarios
+├── 📁 build/
+│   ├── 📁 docker/               # Dockerfile
+│   └── 📁 scripts/              # Scripts de utilidad
+├── 📁 infrastructure/           # Terraform para Azure
+├── 📁 docs/                     # Documentación adicional
+└── 📄 README.md
+```
+
+---
+
+## ☁️ Despliegue en Azure
+
+El proyecto incluye infraestructura como código con **Terraform**:
+
+```bash
+cd infrastructure
+
+# Inicializar Terraform
+terraform init
+
+# Ver plan de despliegue
+terraform plan -var="database_provider=SqlServer"
+
+# Aplicar cambios
+terraform apply -var="database_provider=SqlServer"
+```
+
+**Recursos creados:**
+- Azure App Service (Windows, .NET 9)
+- Azure SQL Database **o** PostgreSQL Flexible Server (configurable)
+- App Service Plan (S1)
+- Resource Group
+
+**Variables disponibles:**
+- `database_provider`: `SqlServer` (default) o `PostgreSQL`
+- Ver [infrastructure/README.md](infrastructure/README.md) para más detalles
+
+---
+
+## 🧪 Tests
+
+```bash
+# Ejecutar todos los tests
+cd tests
+dotnet test
+
+# Con cobertura
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+---
+
+## 🤝 Contribuir
+
+1. Fork del repositorio
+2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit de cambios (`git commit -m 'Add AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir Pull Request
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
+
+---
+
+<p align="center">
+  <i>This code was generated by GitHub Copilot 🤖</i>
+</p>
