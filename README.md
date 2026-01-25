@@ -250,10 +250,14 @@ terraform apply -var="database_provider=SqlServer"
 ```
 
 **Recursos creados:**
-- Azure App Service (Linux, .NET 9)
-- Azure SQL Database o PostgreSQL Flexible Server
-- Application Insights
+- Azure App Service (Windows, .NET 9)
+- Azure SQL Database **o** PostgreSQL Flexible Server (configurable)
+- App Service Plan (S1)
 - Resource Group
+
+**Variables disponibles:**
+- `database_provider`: `SqlServer` (default) o `PostgreSQL`
+- Ver [infrastructure/README.md](infrastructure/README.md) para más detalles
 
 ---
 
