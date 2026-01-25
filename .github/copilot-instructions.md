@@ -152,7 +152,7 @@ public class HeroController : ControllerBase
 | `ci.yml` | Push/PR to main | Build, test, coverage |
 | `release.yml` | Tags `v*` | Create GitHub release |
 | `github-packages-docker.yml` | Push to main | Build & push Docker image |
-| `docker-scans.yml` | Push to main | Security scans (Trivy, Snyk) |
+| `docker-scans.yml` | Push to main | Security scans (Trivy, Checkov, Grype) |
 | `iac-scans.yml` | Changes to `infrastructure/` | Terraform security scans |
 
 ## 🐳 Running Locally
