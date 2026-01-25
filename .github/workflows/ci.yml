@@ -5,56 +5,59 @@ on:
     branches: [main]
     paths:
       - "src/**"
+      - "tests/**"
       - ".github/workflows/ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "src/**"
+      - "tests/**"
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
-  build:   
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4.3.1
-        with:
-          dotnet-version: 8.x
-      - name: Restore dependencies
-        run: dotnet restore
-      
-      - name: Build
-        run: dotnet build --no-restore
-      
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
-      
-      - name: Install coverlet
-        run: dotnet tool install --global coverlet.console
-      
-      - name: Run tests with coverage        
-        run: dotnet test --collect:"XPlat Code Coverage"
-  
-      - name: ReportGenerator
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.0
-        with:
-          reports: 'tests/TestResults/**/coverage.cobertura.xml' 
-          targetdir: 'coveragereport' 
-          reporttypes: 'MarkdownSummaryGithub;Badges'
-      
-      - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: CoverageReport 
-          path: coveragereport 
+      - name: 📥 Checkout code
+        uses: actions/checkout@v6
 
-      - name: Add comment to PR 
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.x
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore
+
+      - name: 🏗️ Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: 🧪 Test with coverage
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --verbosity normal
+
+      - name: 📊 Generate coverage report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.1
+        with:
+          reports: "tests/TestResults/**/coverage.cobertura.xml"
+          targetdir: "coveragereport"
+          reporttypes: "MarkdownSummaryGithub;Badges"
+
+      - name: 📤 Upload coverage report artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: CoverageReport
+          path: coveragereport
+
+      - name: 💬 Add comment to PR
         if: github.event_name == 'pull_request'
-        run: gh pr comment $PR_NUMBER --body-file coveragereport/SummaryGithub.md 
+        run: gh pr comment $PR_NUMBER --body-file coveragereport/SummaryGithub.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
-          
-      - name: Publish coverage in build summary
-        run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY # Adjust path and filename if necessary
+
+      - name: 📋 Publish coverage in build summary
+        run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
         shell: bash
