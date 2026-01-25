@@ -27,7 +27,6 @@
 				"ms-mssql.mssql",
 				"ckolkman.vscode-postgres",
 				"humao.rest-client",
-				"hashicorp.terraform",
 				"ms-azuretools.vscode-docker",
 				"redhat.vscode-yaml",
 				"GitHub.copilot",
