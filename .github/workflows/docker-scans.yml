@@ -35,15 +35,3 @@ jobs:
     with:
       dockerfile_path: build/docker/Dockerfile
       context: ./src
-
-  snyk:
-    permissions:
-      contents: read
-      security-events: write
-    uses: 0GiS0/scan-docker-vulnerabilities/.github/workflows/snyk.yaml@main
-    with:
-      dockerfile_path: build/docker/Dockerfile
-      context: ./src
-
-    secrets:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
