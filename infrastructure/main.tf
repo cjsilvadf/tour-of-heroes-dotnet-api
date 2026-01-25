@@ -58,6 +58,11 @@ locals {
     Environment = var.environment
     ManagedBy   = "Terraform"
   }
+  
+  # Connection strings
+  sqlserver_connection_string = var.database_provider == "SqlServer" ? "Server=tcp:${azurerm_mssql_server.sqlserver[0].name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.sqldatabase[0].name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" : ""
+  
+  postgresql_connection_string = var.database_provider == "PostgreSQL" ? "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;" : ""
 }
 
 
@@ -128,7 +133,7 @@ resource "azurerm_postgresql_flexible_server_database" "heroes" {
   collation = "en_US.utf8"
 }
 
-# Firewall rule para Azure Services
+# Firewall rule for Azure Services
 resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure" {
   count            = var.database_provider == "PostgreSQL" ? 1 : 0
   name             = "AllowAzureServices"
@@ -175,13 +180,13 @@ resource "azurerm_windows_web_app" "web" {
   # Connection Strings
   connection_string {
     name  = "DefaultConnection"
-    value = var.database_provider == "SqlServer" ? "Server=tcp:${azurerm_mssql_server.sqlserver[0].name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.sqldatabase[0].name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" : ""
+    value = local.sqlserver_connection_string
     type  = "SQLAzure"
   }
 
   connection_string {
     name  = "PostgreSQL"
-    value = var.database_provider == "PostgreSQL" ? "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;" : ""
+    value = local.postgresql_connection_string
     type  = "Custom"
   }
 }
@@ -199,13 +204,13 @@ resource "azurerm_windows_web_app_slot" "web" {
   # Connection Strings
   connection_string {
     name  = "DefaultConnection"
-    value = var.database_provider == "SqlServer" ? "Server=tcp:${azurerm_mssql_server.sqlserver[0].name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.sqldatabase[0].name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" : ""
+    value = local.sqlserver_connection_string
     type  = "SQLAzure"
   }
 
   connection_string {
     name  = "PostgreSQL"
-    value = var.database_provider == "PostgreSQL" ? "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;" : ""
+    value = local.postgresql_connection_string
     type  = "Custom"
   }
 
