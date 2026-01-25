@@ -5,14 +5,30 @@ using OpenTelemetry.Trace;
 using tour_of_heroes_api.Models;
 using Microsoft.AspNetCore.HttpLogging;
 using OpenTelemetry.Logs;
-using OpenTelemetry.Instrumentation.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IHeroRepository, HeroRepository>();
-builder.Services.AddControllers(); builder.Services.AddDbContext<HeroContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddControllers();
+
+// Database provider configuration via environment variable
+// Supported values: "SqlServer" (default), "PostgreSQL"
+var databaseProvider = builder.Configuration["DATABASE_PROVIDER"] ?? "SqlServer";
+
+builder.Services.AddDbContext<HeroContext>(opt =>
+{
+    if (databaseProvider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
+    {
+        opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"));
+    }
+    else
+    {
+        opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "tour_of_heroes_api", Version = "v1" });

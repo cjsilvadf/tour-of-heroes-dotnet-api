@@ -1,46 +1,56 @@
-name: 📦 Generate .NET release
+name: 📦 Generate .NET Release
 
 on:
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+*" 
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+
+permissions:
+  contents: write
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: dotnet restore
-      - run: dotnet build --configuration Release
-      - run: ls -la
-      - name: Zip dist
-        run: cd bin/Release/net7.0/ ; zip -r ../../../drop.zip . * ; cd ../../../
-      - name: Check package version
-        uses: technote-space/package-version-check-action@v1
-      - name: Build changelog
+      - name: 📥 Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.x
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore
+
+      - name: 🏗️ Build Release
+        run: dotnet build --configuration Release --no-restore
+
+      - name: 🧪 Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: 📁 Create release artifact
+        run: |
+          cd src/bin/Release/net9.0/
+          zip -r ../../../../tour-of-heroes-api.zip .
+        
+      - name: 📝 Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@main
+        uses: mikepenz/release-changelog-builder-action@v5
         with:
           configuration: "release-changelog-builder-config.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: ${{ steps.build_changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: tour-of-heroes-api.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{steps.build_changelog.outputs.changelog}}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./drop.zip
-          asset_name: "drop.zip"
-          asset_content_type: application/zip
