@@ -48,7 +48,7 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
 
           # Copilot CLI analyzes the repo and creates issues using its GitHub MCP Server
-          copilot --no-interactive << EOF
+          copilot -p - << EOF
           Before analyzing the code, I need you to do the following:
 
           1. FIRST: Review the available labels in this repository using the GitHub MCP Server.
