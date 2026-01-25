@@ -50,9 +50,9 @@
     "order": "ASC",
     "on_property": "mergedAt"
   },
-  "template": "#{{CHANGELOG}}\n\n## 📊 Stats\n\n- PRs merged: #{{MERGED_COUNT}}\n- Contributors: #{{CONTRIBUTORS}}\n",
-  "pr_template": "- #{{TITLE}} (#{{NUMBER}}) @#{{AUTHOR}}",
-  "empty_template": "No changes.",
+  "template": "#{{CHANGELOG}}\n\n---\n\n**Full Changelog**: #{{RELEASE_DIFF}}\n",
+  "pr_template": "- #{{TITLE}} ([##{{NUMBER}}](#{{URL}})) @#{{AUTHOR}}",
+  "empty_template": "No changes in this release.",
   "transformers": [],
   "max_tags_to_fetch": 200,
   "max_pull_requests": 200,
