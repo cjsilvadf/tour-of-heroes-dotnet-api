@@ -58,6 +58,9 @@ locals {
     Environment = var.environment
     ManagedBy   = "Terraform"
   }
+  
+  # PostgreSQL password (use specific password if provided, otherwise use db_password)
+  postgresql_password = var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password
 }
 
 
@@ -108,7 +111,7 @@ resource "azurerm_postgresql_flexible_server" "heroes" {
   location            = azurerm_resource_group.rg.location
   
   administrator_login    = var.db_user
-  administrator_password = var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password
+  administrator_password = local.postgresql_password
   
   sku_name   = "B_Standard_B1ms"
   version    = "16"
@@ -186,7 +189,7 @@ resource "azurerm_windows_web_app" "web" {
     for_each = var.database_provider == "PostgreSQL" ? [1] : []
     content {
       name  = "PostgreSQL"
-      value = "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;"
+      value = "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${local.postgresql_password};SSL Mode=Require;"
       type  = "Custom"
     }
   }
@@ -216,7 +219,7 @@ resource "azurerm_windows_web_app_slot" "web" {
     for_each = var.database_provider == "PostgreSQL" ? [1] : []
     content {
       name  = "PostgreSQL"
-      value = "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${var.postgresql_admin_password != null ? var.postgresql_admin_password : var.db_password};SSL Mode=Require;"
+      value = "Host=${azurerm_postgresql_flexible_server.heroes[0].fqdn};Database=heroes;Username=${var.db_user};Password=${local.postgresql_password};SSL Mode=Require;"
       type  = "Custom"
     }
   }
