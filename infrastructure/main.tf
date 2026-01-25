@@ -71,7 +71,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 
-# Create a Azure SQL Server (conditional)
+# Create an Azure SQL Server (conditional)
 resource "azurerm_mssql_server" "sqlserver" {
   count                        = var.database_provider == "SqlServer" ? 1 : 0
   name                         = "heroserver"
@@ -115,7 +115,7 @@ resource "azurerm_postgresql_flexible_server" "heroes" {
   
   sku_name   = "B_Standard_B1ms"
   version    = "16"
-  storage_mb = 32768
+  storage_mb = 32768  # 32 GB - minimum for Flexible Server
   
   zone = "1"
 
