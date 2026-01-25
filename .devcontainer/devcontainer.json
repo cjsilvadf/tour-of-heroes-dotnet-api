@@ -1,5 +1,5 @@
 {
-	"name": "Tour of heroes API",
+	"name": "🦸 Tour of Heroes API ⚔️ | .NET 9 + PostgreSQL + OpenTelemetry 🚀",
 	"dockerComposeFile": "compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
@@ -25,6 +25,7 @@
 				"ms-dotnettools.csharp",
 				"ms-dotnettools.csdevkit",
 				"ms-mssql.mssql",
+				"ckolkman.vscode-postgres",
 				"humao.rest-client",
 				"hashicorp.terraform",
 				"ms-azuretools.vscode-docker",
@@ -41,6 +42,7 @@
 	},
 	"forwardPorts": [
 		5020,
+		5432,
 		16686,
 		9090,
 		3000
@@ -48,18 +50,21 @@
 	"portsAttributes": {
 		"5020": {
 			"protocol": "http",
-			"label": "Tour of Heroes API"
+			"label": "🦸 Tour of Heroes API"
+		},
+		"5432": {
+			"label": "🐘 PostgreSQL"
 		},
 		"16686": {
 			"protocol": "http",
-			"label": "Jaeger UI"
+			"label": "🔍 Jaeger Tracing"
 		},
 		"9090": {
-			"label": "Prometheus",
+			"label": "📊 Prometheus Metrics",
 			"protocol": "http"
 		},
 		"3000": {
-			"label": "Grafana",
+			"label": "📈 Grafana Dashboards",
 			"protocol": "http"
 		}
 	},
