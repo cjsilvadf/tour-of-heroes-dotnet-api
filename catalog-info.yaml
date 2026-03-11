@@ -14,9 +14,11 @@ metadata:
       title: Production
       icon: globe
   annotations:
+    backstage.io/source-location: url:https://github.com/dweber019/backstage-plugins/tree/main/plugins/api-docs-spectral-linter
     # this could also be `url:<url>` if the documentation isn't in the same location
     backstage.io/techdocs-ref: dir:.
     github.com/project-slug: cjsviladf/tour-of-heroes-dotnet-api
+    backstage.io/spectral-ruleset-url: https://dev.azure.com/apibackstage/backstage-catalog/_git/backstage-catalog?path=/Linter/openapi.yaml
 spec:
   type: openai
   lifecycle: production
